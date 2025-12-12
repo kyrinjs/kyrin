@@ -2,7 +2,12 @@
  * Kyrin Framework
  * Entry Point
  */
+import {KyrinServer} from "./core/server"
 
-console.log("Kyrin Framework - Project Setup Complete! 🚀");
+const app = new KyrinServer({
+    port:3000,
+    hostname:"localhost",
+    debug:true
+})
 
-export const version = "0.0.1";
+app.start()
