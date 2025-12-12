@@ -1,16 +1,31 @@
 {
   "name": "kyrin",
   "version": "0.0.1",
-  "description": "High-performance TypeScript web framework for Bun",
-  "main": "src/index.ts",
+  "description": "A high-performance, batteries-included framework for Bun. Built to eliminate decision fatigue.",
   "type": "module",
   "scripts": {
-    "dev":"bun run --watch src/index.ts",
-    "build":"bun build src/index.ts --outfile dist",
-    "test" :"bun test",
-    "lint":"tsc --noEmit"
+    "dev": "bun run --watch src/index.ts",
+    "build": "bun run build:js && bun run build:types",
+    "build:js": "bun build src/index.ts --outdir dist --target bun --minify",
+    "build:types": "tsc --emitDeclarationOnly --outDir dist",
+    "test": "bun test",
+    "test:watch": "bun test --watch",
+    "lint": "tsc --noEmit",
+    "prepublishOnly": "bun run build"
   },
-  "keywords": ["framework","bun","typescript"],
+
+  "keywords": [
+    "bun",
+    "framework",
+    "typescript",
+    "web",
+    "api",
+    "rest",
+    "http",
+    "server",
+    "fast",
+    "batteries-included"
+  ],
   "author": {
     "name": "A70III",
     "url": "https://github.com/A70III"

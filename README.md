@@ -1,15 +1,19 @@
-# kyrin
+# Kyrin Framework
 
-To install dependencies:
+High-performance TypeScript web framework built on Bun.
 
-```bash
+## Installation
+
+\`\`\`bash
 bun install
-```
+\`\`\`
 
-To run:
+## Development
 
-```bash
-bun run index.ts
-```
+\`\`\`bash
+bun run dev
+\`\`\`
 
-This project was created using `bun init` in bun v1.3.4. [Bun](https://bun.com) is a fast all-in-one JavaScript runtime.
+## License
+
+MIT
