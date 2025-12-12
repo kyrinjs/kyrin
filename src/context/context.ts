@@ -48,6 +48,11 @@ export class Context {
     return this.url.searchParams.get(key);
   }
 
+  // ดึง Body แบบ JSON (async)
+  async body<T = any>(): Promise<T> {
+    return (await this.req.json()) as T;
+  }
+
   // --- ส่วนจัดการขาออก (Response Helpers) ---
   //   ตอบ json
   public json(data: any, status?: number) {
