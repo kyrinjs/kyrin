@@ -1,0 +1,41 @@
+{
+  "compilerOptions": {
+    // 1. Runtime & Environment (Bun)
+    "target": "ESNext",         // Bun runs modern JS natively, no need to down-level
+    "module": "ESNext",         // Use standard ES Modules
+    "moduleResolution": "bundler", // Best for Bun/Vite (simulates modern resolution)
+    "lib": ["ESNext"],          // Focus on backend/modern standards (no DOM clutter by default)
+    "types": ["bun-types"],     // Auto-include Bun global types
+
+    // 2. Output & Library Mode
+    "noEmit": false,             // Must be false to output files
+    "emitDeclarationOnly": true, // Bun runs .ts source; TSC only generates .d.ts for consumers
+    "declaration": true,         // Generate type definitions (.d.ts)
+    "declarationMap": true,      // Source maps for types (Go to Definition works for consumers)
+    
+    // 3. Framework Features (Batteries-Included)
+    "experimentalDecorators": true, // Required for DI/Controllers (like Angular/NestJS)
+    "emitDecoratorMetadata": true,  // Needed for runtime reflection on types
+
+    // 4. Strictness & Safety (The "Guard Rails")
+    "strict": true,
+    "noUncheckedIndexedAccess": true, // arr[0] is T | undefined (prevents runtime crashes)
+    "noImplicitOverride": true,       // Force `override` keyword on subclasses
+    "forceConsistentCasingInFileNames": true,
+
+    // 5. Performance & Constraints
+    "verbatimModuleSyntax": true,    // Force `import type`, reduces transpilation overhead
+    "moduleDetection": "force",      // Treat every file as a module
+    "skipLibCheck": true,            // Speed up builds by skipping d.ts checks of dependencies
+    "resolveJsonModule": true,       // Import JSON files strictly
+    "esModuleInterop": true,         // Compat with CommonJS packages
+    
+    // Developer Experience
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"]
+    }
+  },
+  "include": ["src/**/*", "tests/**/*", "index.ts"],
+  "exclude": ["node_modules", "dist"]
+}
