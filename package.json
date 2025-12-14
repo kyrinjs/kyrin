@@ -1,7 +1,7 @@
 {
   "name": "kyrin",
-  "version": "0.0.4",
-  "description": "A high-performance, batteries-included framework for Bun. Built to eliminate decision fatigue.",
+  "version": "0.0.1-experimental.1",
+  "description": "A simple, fast web framework for Bun",
   "type": "module",
   "main": "./dist/lib.js",
   "types": "./dist/lib.d.ts",
@@ -40,6 +40,14 @@
     "name": "A70III",
     "url": "https://github.com/A70III"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kyrinjs/Kyrin.git"
+  },
+  "bugs": {
+    "url": "https://github.com/kyrinjs/Kyrin/issues"
+  },
+  "homepage": "https://github.com/kyrinjs/Kyrin#readme",
   "license": "MIT",
   "dependencies": {},
   "devDependencies": {
