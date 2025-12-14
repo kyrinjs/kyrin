@@ -32,5 +32,9 @@ report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
 
 # Finder (MacOS) folder config
 .DS_Store
-examples
 
+#ignore examples and guide version and tests 
+examples
+guide version
+tests   
+benchmarks
