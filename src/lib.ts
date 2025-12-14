@@ -49,5 +49,5 @@ export type {
 export { compose } from "./middleware";
 
 // Plugins
-export { cors } from "./plugins";
-export type { CorsOptions } from "./plugins";
+export { cors, logger } from "./plugins";
+export type { CorsOptions, LoggerOptions } from "./plugins";

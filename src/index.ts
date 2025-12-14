@@ -2,8 +2,12 @@
  * Kyrin Framework - Example Usage
  */
 import { Kyrin } from "./core/kyrin";
+import { logger } from "./plugins/logger";
 
 const app = new Kyrin({ development: true });
+
+// Add logger plugin
+app.use(logger());
 
 // ✨ Minimal API Examples
 
