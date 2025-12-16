@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.0.1-experimental.2] - 2025-12-15
+
+development mode enabled to see errors and logs in the console
+
+**New stuff:**
+
+- `development` mode for debugging
+
 ## [0.0.1-experimental.1] - 2025-12-14
 
 Middleware support is here! Now you can add CORS, auth, logging, or whatever you need.
