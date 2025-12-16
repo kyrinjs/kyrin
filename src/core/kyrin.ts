@@ -247,6 +247,16 @@ export class Kyrin {
       return response;
     } catch (error) {
       console.error("Handler Error:", error);
+
+      if (this.config.development) {
+        // แสดง error details ใน development
+        return new Response(`Error: ${error}\n\n${(error as any).stack}`, {
+          status: 500,
+          headers: { "Content-Type": "text/plain" },
+        });
+      }
+
+      // ซ่อน details ใน production
       return new Response("Internal Server Error", { status: 500 });
     }
   }

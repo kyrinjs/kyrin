@@ -1,6 +1,13 @@
 /**
- * Kyrin Framework - Example Usage
+ * Kyrin Framework - Main Entry Point
  */
+export { Kyrin } from "./core/kyrin";
+export type { Handler, HandlerResponse, HttpMethod, KyrinConfig } from "./core/types";
+export { Router } from "./router/router";
+export { Context } from "./context/context";
+export type { MiddlewareHandler, HookHandler, KyrinPlugin } from "./middleware/types";
+
+// ==================== Example Usage ====================
 import { Kyrin } from "./core/kyrin";
 
 const app = new Kyrin({ development: true });
