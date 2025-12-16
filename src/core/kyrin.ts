@@ -281,6 +281,6 @@ export class Kyrin {
       },
     });
 
-    console.log(`🚀 Kyrin running at http://${hostname}:${finalPort}`);
+    console.log(`🐲 Kyrin running at http://${hostname}:${finalPort}`);
   }
 }
