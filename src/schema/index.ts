@@ -52,4 +52,5 @@ export {
   NumberType,
   BooleanType,
   DateType,
+  PrimaryKeyType,
 } from "./types";

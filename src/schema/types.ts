@@ -18,6 +18,9 @@ abstract class BaseType<T extends z.ZodTypeAny> {
   nullable() {
     return new NullableType(this._zod.nullable());
   }
+  pk() {
+    return new PrimaryKeyType(this._zod);
+  }
   get zod() {
     return this._zod;
   }
@@ -49,6 +52,15 @@ export class DateType extends BaseType<z.ZodDate> {
 }
 
 // Wrapper Types (returned by modifier methods)
+export class PrimaryKeyType<T extends z.ZodTypeAny> extends BaseType<T> {
+  constructor(zod: T) {
+    super(zod);
+  }
+  get isPrimaryKey() {
+    return true;
+  }
+}
+
 export class OptionalType<T extends z.ZodTypeAny> extends BaseType<
   z.ZodOptional<T>
 > {

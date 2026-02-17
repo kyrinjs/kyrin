@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.0.1-experimental.4] - 2026-02-18
+
+Custom error handlers, static file serving, validation, and custom primary keys!
+
+**New Features:**
+
+- **Error Handler Plugin** - Define custom error handlers in constructor: `new Kyrin({ onError: (err, c) => ... })`
+- **Static File Serving** - Serve files easily: `app.static("./public", { prefix: "/assets" })`
+- **Request Validation** - Validate body with Zod: `app.post("/users", schema, handler)`
+- **Custom Primary Key** - Define custom PK: `sku: string().pk()` instead of hardcoded `id`
+
 ## [0.0.1-experimental.3] - 2025-12-17
 
 Auto database schema generation! Define models in TypeScript and sync to SQLite automatically.

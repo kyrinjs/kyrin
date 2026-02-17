@@ -3,11 +3,13 @@
  * Minimal Web Framework for Bun
  */
 
+import type { ZodSchema, z } from "zod";
 import type {
   Handler,
   HandlerResponse,
   HttpMethod,
   KyrinConfig,
+  ErrorHandler,
 } from "./types";
 import type {
   MiddlewareHandler,
@@ -36,6 +38,7 @@ export class Kyrin {
   private middlewares: MiddlewareHandler[] = [];
   private requestHooks: HookHandler[] = [];
   private responseHooks: HookHandler[] = [];
+  private errorHandler: ErrorHandler;
 
   constructor(config: KyrinConfig = {}) {
     this.router = new Router();
@@ -44,6 +47,18 @@ export class Kyrin {
       hostname: config.hostname ?? "localhost",
       development: config.development ?? false,
     };
+    this.errorHandler = config.onError ?? this.defaultErrorHandler;
+  }
+
+  private defaultErrorHandler(error: Error, c: Context): Response {
+    console.error("Handler Error:", error);
+    if (this.config.development) {
+      return new Response(`Error: ${error}\n\n${(error as any).stack}`, {
+        status: 500,
+        headers: { "Content-Type": "text/plain" },
+      });
+    }
+    return new Response("Internal Server Error", { status: 500 });
   }
 
   // ==================== Middleware ====================
@@ -111,28 +126,64 @@ export class Kyrin {
 
   // ==================== Route Methods ====================
 
-  get(path: string, handler: Handler): this {
-    this.router.get(path, handler);
-    return this;
+  get(path: string, handler: Handler): this;
+  get<T extends z.ZodTypeAny>(path: string, schema: T, handler: (ctx: Context & { body: () => Promise<z.infer<T>> }) => HandlerResponse): this;
+  get(path: string, schemaOrHandler: any, handler?: any): this {
+    return this.registerRoute("GET", path, schemaOrHandler, handler);
   }
 
-  post(path: string, handler: Handler): this {
-    this.router.post(path, handler);
-    return this;
+  post(path: string, handler: Handler): this;
+  post<T extends z.ZodTypeAny>(path: string, schema: T, handler: (ctx: Context & { body: () => Promise<z.infer<T>> }) => HandlerResponse): this;
+  post(path: string, schemaOrHandler: any, handler?: any): this {
+    return this.registerRoute("POST", path, schemaOrHandler, handler);
   }
 
-  put(path: string, handler: Handler): this {
-    this.router.put(path, handler);
-    return this;
+  put(path: string, handler: Handler): this;
+  put<T extends z.ZodTypeAny>(path: string, schema: T, handler: (ctx: Context & { body: () => Promise<z.infer<T>> }) => HandlerResponse): this;
+  put(path: string, schemaOrHandler: any, handler?: any): this {
+    return this.registerRoute("PUT", path, schemaOrHandler, handler);
   }
 
-  delete(path: string, handler: Handler): this {
-    this.router.delete(path, handler);
-    return this;
+  delete(path: string, handler: Handler): this;
+  delete<T extends z.ZodTypeAny>(path: string, schema: T, handler: (ctx: Context & { body: () => Promise<z.infer<T>> }) => HandlerResponse): this;
+  delete(path: string, schemaOrHandler: any, handler?: any): this {
+    return this.registerRoute("DELETE", path, schemaOrHandler, handler);
   }
 
-  patch(path: string, handler: Handler): this {
-    this.router.patch(path, handler);
+  patch(path: string, handler: Handler): this;
+  patch<T extends z.ZodTypeAny>(path: string, schema: T, handler: (ctx: Context & { body: () => Promise<z.infer<T>> }) => HandlerResponse): this;
+  patch(path: string, schemaOrHandler: any, handler?: any): this {
+    return this.registerRoute("PATCH", path, schemaOrHandler, handler);
+  }
+
+  /**
+   * Register route with optional schema validation
+   */
+  private registerRoute(
+    method: HttpMethod,
+    path: string,
+    schemaOrHandler: any,
+    handler?: any
+  ): this {
+    // If second arg is a Zod schema
+    if (schemaOrHandler?._def || schemaOrHandler?.parse) {
+      const schema = schemaOrHandler;
+      const actualHandler = handler;
+
+      const validatedHandler: Handler = async (c) => {
+        const body = await c.body();
+        const validated = schema.parse(body);
+        // Create new context with validated body
+        const validatedCtx = Object.create(c);
+        validatedCtx.body = async () => validated;
+        return actualHandler(validatedCtx);
+      };
+
+      this.router.on(method, path, validatedHandler);
+    } else {
+      // No schema, normal handler
+      this.router.on(method, path, schemaOrHandler);
+    }
     return this;
   }
 
@@ -153,6 +204,43 @@ export class Kyrin {
 
   on(method: HttpMethod, path: string, handler: Handler): this {
     this.router.on(method, path, handler);
+    return this;
+  }
+
+  /**
+   * Serve static files from a directory
+   * @example
+   * app.static("./public");
+   * app.static("./assets", { prefix: "/assets" });
+   */
+  static(rootPath: string, options: { prefix?: string } = {}): this {
+    const prefix = options.prefix ?? "";
+    const fs = require("fs");
+    const path = require("path");
+
+    const staticHandler: Handler = async (c) => {
+      const urlPath = c.path.slice(prefix.length) || "/";
+      const filePath = path.join(rootPath, urlPath);
+      
+      // Security: prevent directory traversal
+      if (!filePath.startsWith(path.resolve(rootPath))) {
+        return c.notFound();
+      }
+
+      try {
+        const stat = fs.statSync(filePath);
+        if (stat.isDirectory()) {
+          return c.notFound();
+        }
+        const file = Bun.file(filePath);
+        return new Response(file);
+      } catch {
+        return c.notFound();
+      }
+    };
+
+    // Register route for all paths under prefix
+    this.get(`${prefix}/*`, staticHandler);
     return this;
   }
 
@@ -246,18 +334,7 @@ export class Kyrin {
 
       return response;
     } catch (error) {
-      console.error("Handler Error:", error);
-
-      if (this.config.development) {
-        // แสดง error details ใน development
-        return new Response(`Error: ${error}\n\n${(error as any).stack}`, {
-          status: 500,
-          headers: { "Content-Type": "text/plain" },
-        });
-      }
-
-      // ซ่อน details ใน production
-      return new Response("Internal Server Error", { status: 500 });
+      return this.errorHandler(error as Error, ctx);
     }
   }
 

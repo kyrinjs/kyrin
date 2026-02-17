@@ -1,9 +1,13 @@
 import type { Context } from "../context/context";
 
+/** Error handler function type */
+export type ErrorHandler = (error: Error, c: Context) => Response | Promise<Response>;
+
 export interface KyrinConfig {
   port?: number;
   hostname?: string;
   development?: boolean;
+  onError?: ErrorHandler;
 }
 
 /** Handler response types for auto-detection */

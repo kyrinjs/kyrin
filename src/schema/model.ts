@@ -130,11 +130,21 @@ function zodToSqlType(zodType: any): string {
 export class Model<T extends SchemaColumns> {
   /** Inferred TypeScript type */
   declare $type: InferColumns<T>;
+  private primaryKey: string;
 
   constructor(
     public readonly tableName: string,
     public readonly columns: T,
-  ) {}
+  ) {
+    // Find primary key column
+    this.primaryKey = "id"; // default
+    for (const [name, type] of Object.entries(columns)) {
+      if (type.constructor.name === "PrimaryKeyType") {
+        this.primaryKey = name;
+        break;
+      }
+    }
+  }
 
   // ==================== SQL Generation ====================
 
@@ -142,10 +152,8 @@ export class Model<T extends SchemaColumns> {
   toCreateSQL(): string {
     const cols = Object.entries(this.columns).map(([name, type]) => {
       const sqlType = zodToSqlType(type.zod);
-      // Auto primary key for 'id'
-      //
-      // Flag For Fix to Experimental.4 และ ต้องประกาศ function primaryKey() เพื่อให้ userกำหนด ชื่อของ attribute primartkey ได้เอง
-      if (name === "id") {
+      // Check if this is the primary key column
+      if (name === this.primaryKey) {
         return `${name} INTEGER PRIMARY KEY AUTOINCREMENT`;
       }
       return `${name} ${sqlType}`;
@@ -182,7 +190,7 @@ export class Model<T extends SchemaColumns> {
 
   /** Create a new record */
   create(db: Database, data: Partial<InferColumns<T>>): InferColumns<T> {
-    const keys = Object.keys(data).filter((k) => k !== "id");
+    const keys = Object.keys(data).filter((k) => k !== this.primaryKey);
     const values = keys.map((k) => {
       const val = (data as any)[k];
       // Convert Date to ISO string
@@ -196,12 +204,12 @@ export class Model<T extends SchemaColumns> {
 
     const placeholders = keys.map(() => "?").join(", ");
     const sql = `INSERT INTO ${this.tableName} (${keys.join(
-      ", ",
+      ", "
     )}) VALUES (${placeholders})`;
     const result = db.run(sql, values);
 
-    // Return created record with id
-    return { ...data, id: result.lastInsertRowid } as InferColumns<T>;
+    // Return created record with primary key
+    return { ...data, [this.primaryKey]: result.lastInsertRowid } as InferColumns<T>;
   }
 
   /** Find all records (optional where clause) */

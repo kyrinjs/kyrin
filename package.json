@@ -1,6 +1,6 @@
 {
   "name": "kyrin",
-  "version": "0.0.1-experimental.3",
+  "version": "0.0.1-experimental.4",
   "description": "A simple, fast web framework for Bun",
   "type": "module",
   "main": "./dist/lib.js",
