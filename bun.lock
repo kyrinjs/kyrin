@@ -4,12 +4,10 @@
   "workspaces": {
     "": {
       "name": "kyrin",
-      "dependencies": {
-        "zod": "^4.2.1",
-      },
       "devDependencies": {
         "@types/bun": "latest",
         "typescript": "^5",
+        "zod": "^4.2.1",
       },
     },
   },
