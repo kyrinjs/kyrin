@@ -11,8 +11,18 @@ export { SQLiteClient } from "./clients/sqlite";
 export { PostgreSQLClient } from "./clients/postgres";
 export { MySQLClient } from "./clients/mysql";
 
-// Query Builder
-export { QueryBuilder } from "./query-builder";
+// Query Builder (Knex-style)
+export { QueryBuilder } from "./knex-builder";
+export { QueryBuilder as KnexBuilder } from "./knex-builder";
+
+// Legacy Query Builder (template literal)
+export { QueryBuilder as TemplateQueryBuilder } from "./query-builder";
+
+// Migration
+export { MigrationTracker } from "./migration/tracker";
+export { SchemaDiffer } from "./migration/differ";
+export { MigrationRunner } from "./migration/runner";
+export type { ColumnInfo, TableSchema, SchemaDiff, MigrationPlan, MigrationResult } from "./migration";
 
 // Types
 export type {

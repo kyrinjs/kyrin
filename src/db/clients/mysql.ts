@@ -7,7 +7,7 @@
 import mysql, { type Pool, type RowDataPacket, type ResultSetHeader } from "mysql2/promise";
 import type { MySQLDatabaseConfig } from "../types/config";
 import type { RunResult, PreparedStatement, TransactionFn } from "../types/result";
-import { QueryBuilder } from "../query-builder";
+import { TemplateQueryBuilder } from "../query-builder";
 
 /**
  * MySQL Database Client
@@ -188,7 +188,7 @@ export class MySQLClient {
   sql<T = unknown>(
     strings: TemplateStringsArray | string,
     ...values: any[]
-  ): QueryBuilder<T> {
+  ): TemplateQueryBuilder<T> {
     let sqlQuery: string;
     let params: any[];
 
@@ -200,7 +200,7 @@ export class MySQLClient {
       params = values;
     }
 
-    return new QueryBuilder(this as any, sqlQuery, params);
+    return new TemplateQueryBuilder(this as any, sqlQuery, params);
   }
 
   /**

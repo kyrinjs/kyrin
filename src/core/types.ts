@@ -1,4 +1,5 @@
 import type { Context } from "../context/context";
+import type { DatabaseConfig } from "../db/types";
 
 /** Error handler function type */
 export type ErrorHandler = (error: Error, c: Context) => Response | Promise<Response>;
@@ -8,6 +9,7 @@ export interface KyrinConfig {
   hostname?: string;
   development?: boolean;
   onError?: ErrorHandler;
+  database?: DatabaseConfig;
 }
 
 /** Handler response types for auto-detection */

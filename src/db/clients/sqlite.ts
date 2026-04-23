@@ -11,7 +11,7 @@ import type {
   TransactionFn,
   NativeStatement,
 } from "../types";
-import { QueryBuilder } from "../query-builder";
+import { TemplateQueryBuilder } from "../query-builder";
 
 export class SQLiteClient {
   private db: Database;
@@ -143,7 +143,7 @@ export class SQLiteClient {
   sql<T = unknown>(
     strings: TemplateStringsArray | string,
     ...values: any[]
-  ): QueryBuilder<T> {
+  ): TemplateQueryBuilder<T> {
     let sqlQuery: string;
     let params: any[];
 
@@ -156,7 +156,7 @@ export class SQLiteClient {
       params = values;
     }
 
-    return new QueryBuilder<T>(this, sqlQuery, params);
+    return new TemplateQueryBuilder<T>(this, sqlQuery, params);
   }
 
   // ==================== Lifecycle ====================

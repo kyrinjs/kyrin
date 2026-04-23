@@ -7,7 +7,7 @@
 import postgres from "postgres";
 import type { PostgresDatabaseConfig } from "../types/config";
 import type { RunResult, PreparedStatement, TransactionFn } from "../types/result";
-import { QueryBuilder } from "../query-builder";
+import { TemplateQueryBuilder } from "../query-builder";
 
 /**
  * PostgreSQL Database Client
@@ -168,7 +168,7 @@ export class PostgreSQLClient {
   sql<T = unknown>(
     strings: TemplateStringsArray | string,
     ...values: any[]
-  ): QueryBuilder<T> {
+  ): TemplateQueryBuilder<T> {
     let sqlQuery: string;
     let params: any[];
 
@@ -180,7 +180,7 @@ export class PostgreSQLClient {
       params = values;
     }
 
-    return new QueryBuilder(this as any, sqlQuery, params);
+    return new TemplateQueryBuilder(this as any, sqlQuery, params);
   }
 
   /**

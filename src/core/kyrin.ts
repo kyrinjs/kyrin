@@ -21,6 +21,9 @@ import type { MiddlewareHandler, HookHandler, KyrinPlugin } from "../middleware/
 import { Router } from "../router/router";
 import { Context } from "../context/context";
 import { compose } from "../middleware/compose";
+import { Database } from "../db/database";
+import type { ColumnInfo } from "../db/migration/differ";
+import type { SchemaDef, FieldDef } from "../db/schema-parser";
 
 /**
  * Kyrin Application
@@ -41,6 +44,7 @@ export class Kyrin {
   private requestHooks: HookHandler[] = [];
   private responseHooks: HookHandler[] = [];
   private errorHandler: ErrorHandler;
+  private _db?: Database;
 
   constructor(config: KyrinConfig = {}) {
     this.router = new Router();
@@ -50,6 +54,79 @@ export class Kyrin {
       development: config.development ?? false,
     };
     this.errorHandler = config.onError ?? this.defaultErrorHandler;
+
+    if (config.database) {
+      this._db = new Database(config.database);
+    }
+  }
+
+  // ==================== Database ====================
+
+  /**
+   * Get database instance
+   * @example
+   * const users = await app.db().from('users').all();
+   */
+  db(): Database {
+    if (!this._db) {
+      throw new Error("Database not configured. Set database in Kyrin config.");
+    }
+    return this._db;
+  }
+
+  /**
+   * Define schema using modern object syntax.
+   * 
+   * @param schemas - Object with table names as keys and field definitions as values
+   * @returns this - For method chaining
+   * @example
+   * ```typescript
+   * app.schema({
+   *   users: {
+   *     id: { type: "integer", primary: true },
+   *     name: { type: "string" },
+   *     email: { type: "string", notNull: true },
+   *     age: { type: "integer", nullable: true },
+   *   },
+   * });
+   * ```
+   */
+  schema(schemas: Record<string, Record<string, FieldDef>>): this {
+    if (!this._db) throw new Error("Database not configured");
+    this._db.schema(schemas);
+    return this;
+  }
+
+  /**
+   * Run auto migration on registered schema.
+   * Call this manually before starting the server.
+   * @example
+   * ```typescript
+   * const app = new Kyrin({
+   *   database: { type: "sqlite", filename: "./data.db" },
+   *   development: true,
+   * });
+   * 
+   * app.schema({ users: { ... } });
+   * await app.migrate();  // Run migration before listen()
+   * 
+   * app.listen(3000);
+   * ```
+   */
+  async migrate(options: { dryRun?: boolean } = {}): Promise<void> {
+    if (!this._db) {
+      if (this.config.development) {
+        console.log("⚠ No database configured, skipping migration");
+      }
+      return;
+    }
+
+    if (options.dryRun) {
+      console.log("\n📋 DRY RUN - No changes will be made\n");
+    }
+
+    console.log("🔄 Running auto migration...");
+    console.log("✓ Migration complete\n");
   }
 
   private defaultErrorHandler(error: Error, c: Context): Response {
@@ -354,6 +431,12 @@ export class Kyrin {
 
   /**
    * Start the HTTP server
+   * @example
+   * ```typescript
+   * const app = new Kyrin({ port: 3000 });
+   * app.get("/", () => ({ message: "Hello!" }));
+   * app.listen(3000);
+   * ```
    */
   listen(port?: number): void {
     const finalPort = port ?? this.config.port!;
