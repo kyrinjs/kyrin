@@ -1,67 +1,29 @@
 /**
  * Kyrin Framework - Main Entry Point
+ * Re-exports all public APIs from the framework
+ *
+ * @example
+ * ```typescript
+ * import { Kyrin, Router, Context, model } from "kyrin";
+ *
+ * const app = new Kyrin();
+ * app.get("/", () => ({ message: "Hello!" }));
+ * app.listen(3000);
+ * ```
  */
+
+// ==================== Core ====================
 export { Kyrin } from "./core/kyrin";
 export type { Handler, HandlerResponse, HttpMethod, KyrinConfig } from "./core/types";
+
+// ==================== Router ====================
 export { Router } from "./router/router";
+
+// ==================== Context ====================
 export { Context } from "./context/context";
+
+// ==================== Middleware ====================
 export type { MiddlewareHandler, HookHandler, KyrinPlugin } from "./middleware/types";
+
+// ==================== Schema ====================
 export { model, string, number, boolean, date, schema, column } from "./schema";
-
-// ==================== Example Usage ====================
-import { Kyrin } from "./core/kyrin";
-import { schema, string, column, model } from "./schema";
-
-const app = new Kyrin({ development: true });
-
-// ✨ Minimal API Examples
-
-// Auto JSON - just return an object!
-app.get("/", () => ({ message: "Hello Kyrin! 🚀" }));
-
-// Auto Text - just return a string!
-app.get("/text", () => "Hello World!");
-
-// Traditional way - still works!
-app.get("/json", (c) => c.json({ status: "ok" }));
-
-// Path params with destructuring
-app.get("/users/:id", (c) => ({
-  id: c.param("id"),
-  name: "John Doe",
-}));
-
-// Nested params
-app.get("/users/:userId/posts/:postId", (c) => ({
-  userId: c.param("userId"),
-  postId: c.param("postId"),
-}));
-
-// Query params
-app.get("/search", (c) => ({
-  query: c.query("q"),
-  page: c.query("page") ?? "1",
-}));
-
-// POST with body validation
-app.post("/users", async (c) => {
-  const body = await c.body(schema({
-    name: string()
-  })) as { name: string };
-  return c.json({ created: body.name }, 201);
-});
-
-// Database model example
-const User = model("users", {
-  id: column.number().pk(),
-  name: column.string(),
-  email: column.string().optional()
-});
-
-// Redirect
-app.get("/old", (c) => c.redirect("/"));
-
-// 204 No Content - return null
-app.delete("/users/:id", () => null);
-
-app.listen(3000);

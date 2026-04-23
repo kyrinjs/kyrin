@@ -3,10 +3,13 @@
  * Provides CRUD operations and SQL generation
  */
 
+// ==================== External ====================
 import { z } from "zod";
+
+// ==================== Internal ====================
 import type { Database } from "../db/database";
 import type { RunResult } from "../db/types";
-import { BaseType } from "./types";
+import type { BaseType } from "./types";
 
 // ==================== Type Utilities ====================
 

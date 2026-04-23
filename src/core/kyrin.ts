@@ -1,21 +1,23 @@
 /**
  * Kyrin Framework - Main Application Class
  * Minimal Web Framework for Bun
+ *
+ * @example
+ * ```typescript
+ * const app = new Kyrin();
+ * app.use(cors());
+ * app.get("/", () => ({ message: "Hello!" }));
+ * app.listen(3000);
+ * ```
  */
 
+// ==================== External ====================
 import type { ZodSchema, z } from "zod";
-import type {
-  Handler,
-  HandlerResponse,
-  HttpMethod,
-  KyrinConfig,
-  ErrorHandler,
-} from "./types";
-import type {
-  MiddlewareHandler,
-  HookHandler,
-  KyrinPlugin,
-} from "../middleware/types";
+
+// ==================== Internal ====================
+import type { Handler, HandlerResponse, HttpMethod, KyrinConfig, ErrorHandler } from "./types";
+import type { MiddlewareHandler, HookHandler, KyrinPlugin } from "../middleware/types";
+
 import { Router } from "../router/router";
 import { Context } from "../context/context";
 import { compose } from "../middleware/compose";

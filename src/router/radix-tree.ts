@@ -1,8 +1,21 @@
 /**
  * Kyrin Framework - Radix Tree Router
+ * High-performance route matching with O(k) path lookup
+ *
+ * @example
+ * ```typescript
+ * const tree = new RadixTree();
+ * tree.insert("/users/:id", handler);
+ * tree.insert("/posts/:postId/comments/:commentId", handler2);
+ *
+ * const result = tree.lookup("/users/123");
+ * // result.handler, result.params { id: "123" }
+ * ```
  */
 
-import type { Handler, LookupResult } from "@/core/types";
+import type { Handler, LookupResult } from "../core/types";
+
+// ==================== Types ====================
 
 interface RadixNode {
   path: string;
@@ -13,9 +26,7 @@ interface RadixNode {
   wildcardChild: RadixNode | null;
 }
 
-/**
- * สร้าง RadixNode ใหม่
- */
+// ==================== Node Factory ====================
 
 function createNode(path: string = ""): RadixNode {
   return {
@@ -29,7 +40,7 @@ function createNode(path: string = ""): RadixNode {
 }
 
 /**
- * RadixTree class สำหรับการค้นหา route
+ * RadixTree class for high-performance route matching
  */
 export class RadixTree {
   private root: RadixNode;
@@ -38,24 +49,22 @@ export class RadixTree {
     this.root = createNode();
   }
 
+  // ==================== Path Operations ====================
+
   /**
-   * แยก path เป็น segments
+   * Split path into segments
    * @example '/users/:id/posts' → ['users', ':id', 'posts']
    */
   private splitPath(path: string): string[] {
-    /**
-     * @optimize_from_1st_benchmark
-     * เปลี่ยนเป็น - ไม่ใช้ Regex
-     */
     const start = path.startsWith("/") ? 1 : 0;
     const end = path.endsWith("/") ? path.length - 1 : path.length;
     return path.slice(start, end).split("/");
   }
 
   /**
-   * เพิ่ม route เข้าไปใน tree
-   * @param path - path ของ route (เช่น /users/:id)
-   * @param handler - ฟังก์ชัน handler
+   * Insert route into tree
+   * @param path - Route path (e.g., /users/:id)
+   * @param handler - Request handler function
    */
   insert(path: string, handler: Handler): void {
     const segments = this.splitPath(path);
@@ -91,18 +100,20 @@ export class RadixTree {
   }
 
   /**
-   * ค้นหา route ใน tree
-   * @param path - path ของ request (เช่น /users/123)
-   * @returns LookupResult หรือ null ถ้าไม่พบ
+   * Lookup route in tree
+   * @param path - Request path (e.g., /users/123)
+   * @returns LookupResult or null if not found
    */
-
   lookup(path: string): LookupResult | null {
     const segments = this.splitPath(path);
     const params = new Map<string, string>();
     return this.search(this.root, segments, 0, params);
   }
+
+  // ==================== Search ====================
+
   /**
-   * ค้นหา recursive ใน tree
+   * Recursive search in tree
    */
   private search(
     node: RadixNode,

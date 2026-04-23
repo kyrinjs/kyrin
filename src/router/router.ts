@@ -1,6 +1,16 @@
 /**
  * Kyrin Framework - Router
  * HTTP routing with RadixTree for O(k) lookups
+ *
+ * @example
+ * ```typescript
+ * const router = new Router();
+ * router.get("/users", getUsersHandler);
+ * router.post("/users", createUserHandler);
+ *
+ * const result = router.match("GET", "/users");
+ * // result.handler, result.params { ... }
+ * ```
  */
 
 import type { Handler, LookupResult, HttpMethod } from "../core/types";

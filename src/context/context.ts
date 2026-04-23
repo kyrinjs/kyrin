@@ -1,9 +1,18 @@
 /**
  * Kyrin Framework - Context
  * Request/Response handling for route handlers
+ *
+ * @example
+ * ```typescript
+ * app.get("/users/:id", async (c) => {
+ *   const id = c.param("id");
+ *   const body = await c.body(schema({ ... }));
+ *   return c.json({ id, ...body });
+ * });
+ * ```
  */
 
-import { z } from "zod";
+import type { z } from "zod";
 
 export class Context {
   readonly req: Request;

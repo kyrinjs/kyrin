@@ -13,7 +13,7 @@
  * ```
  */
 
-// Core
+// ==================== Core ====================
 export { Kyrin } from "./core/kyrin";
 export type {
   Handler,
@@ -24,13 +24,13 @@ export type {
   ErrorHandler,
 } from "./core/types";
 
-// Router
+// ==================== Router ====================
 export { Router } from "./router/router";
 
-// Context
+// ==================== Context ====================
 export { Context } from "./context/context";
 
-// Database
+// ==================== Database ====================
 export { Database, database, SQLiteClient } from "./db";
 export type {
   DatabaseConfig,
@@ -41,11 +41,11 @@ export type {
   SyncOptions,
 } from "./db";
 
-// Schema
+// ==================== Schema ====================
 export { model, string, number, boolean, date, Model, PrimaryKeyType, schema, column } from "./schema";
 export type { InferColumns, SchemaColumns, Schema } from "./schema";
 
-// Middleware
+// ==================== Middleware ====================
 export type {
   MiddlewareHandler,
   HookHandler,
@@ -54,6 +54,6 @@ export type {
 } from "./middleware";
 export { compose } from "./middleware";
 
-// Plugins
+// ==================== Plugins ====================
 export { cors } from "./plugins";
 export type { CorsOptions } from "./plugins";
