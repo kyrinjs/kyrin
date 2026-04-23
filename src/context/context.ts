@@ -60,7 +60,8 @@ export class Context {
   queryAll(): Record<string, string> {
     const result: Record<string, string> = {};
     for (const [key, value] of this.url.searchParams) {
-      result[key] = this.sanitize(value);
+      const sanitized = this.sanitize(value);
+      result[key] = sanitized !== null ? sanitized : "";
     }
     return result;
   }
