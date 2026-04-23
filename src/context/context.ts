@@ -52,7 +52,7 @@ export class Context {
   }
 
   /** Get query parameter (e.g., ?page=1) */
-  query(key: string): string | null {
+query(key: string): string | null {
     return this.sanitize(this.url.searchParams.get(key));
   }
 
@@ -60,12 +60,7 @@ export class Context {
   queryAll(): Record<string, string> {
     const result: Record<string, string> = {};
     for (const [key, value] of this.url.searchParams) {
-      const sanitized = this.sanitize(value);
-      if (sanitized !== null) {
-        result[key] = sanitized;
-      } else {
-        result[key] = "";
-      }
+      result[key] = this.sanitize(value) ?? "";
     }
     return result;
   }
