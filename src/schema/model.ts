@@ -165,16 +165,16 @@ export class Model<T extends SchemaColumns> {
   }
 
   /** Get existing columns from database */
-  private getExistingColumns(db: Database): string[] {
-    const result = db.query<{ name: string }>(
+  private async getExistingColumns(db: Database): Promise<string[]> {
+    const result = await db.query<{ name: string }>(
       `PRAGMA table_info(${this.tableName})`,
     );
-    return result.map((row) => row.name);
+    return result.map((row: any) => row.name);
   }
 
   /** Generate ALTER TABLE statements for new columns (safe mode) */
-  toAlterSQL(db: Database): string[] {
-    const existing = new Set(this.getExistingColumns(db));
+  async toAlterSQL(db: Database): Promise<string[]> {
+    const existing = new Set(await this.getExistingColumns(db));
     const statements: string[] = [];
 
     for (const [name, type] of Object.entries(this.columns)) {
@@ -192,15 +192,12 @@ export class Model<T extends SchemaColumns> {
   // ==================== CRUD Operations ====================
 
   /** Create a new record */
-  create(db: Database, data: Partial<InferColumns<T>>): InferColumns<T> {
+  async create(db: Database, data: Partial<InferColumns<T>>): Promise<InferColumns<T>> {
     const keys = Object.keys(data).filter((k) => k !== this.primaryKey);
     const values = keys.map((k) => {
       const val = (data as any)[k];
-      // Convert Date to ISO string
       if (val instanceof Date) return val.toISOString();
-      // Convert boolean to 0/1
       if (typeof val === "boolean") return val ? 1 : 0;
-      // Convert array to JSON
       if (Array.isArray(val)) return JSON.stringify(val);
       return val;
     });
@@ -209,14 +206,13 @@ export class Model<T extends SchemaColumns> {
     const sql = `INSERT INTO ${this.tableName} (${keys.join(
       ", "
     )}) VALUES (${placeholders})`;
-    const result = db.run(sql, values);
+    const result = await db.run(sql, values);
 
-    // Return created record with primary key
     return { ...data, [this.primaryKey]: result.lastInsertRowid } as InferColumns<T>;
   }
 
   /** Find all records (optional where clause) */
-  findAll(db: Database, where?: Partial<InferColumns<T>>): InferColumns<T>[] {
+  async findAll(db: Database, where?: Partial<InferColumns<T>>): Promise<InferColumns<T>[]> {
     if (!where || Object.keys(where).length === 0) {
       return db.query<InferColumns<T>>(`SELECT * FROM ${this.tableName}`);
     }
@@ -232,10 +228,10 @@ export class Model<T extends SchemaColumns> {
   }
 
   /** Find one record */
-  findOne(
+  async findOne(
     db: Database,
     where: Partial<InferColumns<T>>,
-  ): InferColumns<T> | null {
+  ): Promise<InferColumns<T> | null> {
     const conditions = Object.keys(where)
       .map((k) => `${k} = ?`)
       .join(" AND ");
@@ -247,11 +243,11 @@ export class Model<T extends SchemaColumns> {
   }
 
   /** Update records */
-  update(
+  async update(
     db: Database,
     where: Partial<InferColumns<T>>,
     data: Partial<InferColumns<T>>,
-  ): RunResult {
+  ): Promise<RunResult> {
     const setClause = Object.keys(data)
       .map((k) => `${k} = ?`)
       .join(", ");
@@ -266,7 +262,7 @@ export class Model<T extends SchemaColumns> {
   }
 
   /** Delete records */
-  delete(db: Database, where: Partial<InferColumns<T>>): RunResult {
+  async delete(db: Database, where: Partial<InferColumns<T>>): Promise<RunResult> {
     const conditions = Object.keys(where)
       .map((k) => `${k} = ?`)
       .join(" AND ");

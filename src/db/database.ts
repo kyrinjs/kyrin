@@ -4,6 +4,8 @@
  */
 
 import { SQLiteClient } from "./clients/sqlite";
+import { PostgreSQLClient } from "./clients/postgres";
+import { MySQLClient } from "./clients/mysql";
 import { QueryBuilder } from "./query-builder";
 import type { DatabaseConfig, DatabaseClient } from "./types";
 import type { Model } from "../schema/model";
@@ -73,7 +75,7 @@ function parseConnectionString(connectionString: string): DatabaseConfig {
  * ```
  */
 export class Database implements DatabaseClient {
-  private client: SQLiteClient;
+  private client: DatabaseClient;
   private models: Model<any>[] = [];
 
   constructor(config: DatabaseConfig) {
@@ -82,9 +84,11 @@ export class Database implements DatabaseClient {
         this.client = new SQLiteClient(config);
         break;
       case "postgres":
-        throw new Error("PostgreSQL support coming soon.");
+        this.client = new PostgreSQLClient(config);
+        break;
       case "mysql":
-        throw new Error("MySQL support coming soon.");
+        this.client = new MySQLClient(config);
+        break;
       default:
         throw new Error(`Unsupported database type: ${(config as any).type}`);
     }
@@ -107,23 +111,22 @@ export class Database implements DatabaseClient {
    * @param options.dryRun - Return SQL without executing (default: false)
    * @example
    * ```typescript
-   * db.sync();                    // Safe mode: add new columns only
-   * db.sync({ force: true });     // Force mode: drop + create
-   * db.sync({ dryRun: true });    // Return SQL strings
+   * await db.sync();                    // Safe mode: add new columns only
+   * await db.sync({ force: true });     // Force mode: drop + create
+   * db.sync({ dryRun: true });        // Return SQL strings
    * ```
    */
-  sync(options: SyncOptions = {}): string[] | void {
+  async sync(options: SyncOptions = {}): Promise<string[] | void> {
     const statements: string[] = [];
 
     for (const model of this.models) {
       if (options.force) {
-        // Force mode: DROP + CREATE
         statements.push(`DROP TABLE IF EXISTS ${model.tableName}`);
         statements.push(model.toCreateSQL());
       } else {
-        // Safe mode: CREATE IF NOT EXISTS + ALTER for new columns
         statements.push(model.toCreateSQL());
-        statements.push(...model.toAlterSQL(this));
+        const alterStatements = await model.toAlterSQL(this);
+        statements.push(...alterStatements);
       }
     }
 
@@ -131,24 +134,23 @@ export class Database implements DatabaseClient {
       return statements;
     }
 
-    // Execute all statements
     for (const sql of statements) {
-      this.exec(sql);
+      await this.exec(sql);
     }
   }
 
   // ==================== Query Methods ====================
 
-  query<T = unknown>(sql: string, params?: any[]): T[] {
+  query<T = unknown>(sql: string, params?: any[]): T[] | Promise<T[]> {
     return this.client.query<T>(sql, params);
   }
 
-  queryOne<T = unknown>(sql: string, params?: any[]): T | null {
+  queryOne<T = unknown>(sql: string, params?: any[]): T | null | Promise<T | null> {
     return this.client.queryOne<T>(sql, params);
   }
 
-  exec(sql: string): void {
-    this.client.exec(sql);
+  exec(sql: string): void | Promise<void> {
+    return this.client.exec(sql);
   }
 
   run(sql: string, params?: any[]) {
@@ -159,7 +161,7 @@ export class Database implements DatabaseClient {
     return this.client.prepare<T>(sql);
   }
 
-  transaction<T>(fn: () => T): T {
+  transaction<T>(fn: () => T): T | Promise<T> {
     return this.client.transaction(fn);
   }
 
@@ -170,8 +172,8 @@ export class Database implements DatabaseClient {
     return this.client.sql<T>(strings, ...values);
   }
 
-  close(): void {
-    this.client.close();
+  close(): void | Promise<void> {
+    return this.client.close();
   }
 }
 

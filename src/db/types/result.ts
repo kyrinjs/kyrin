@@ -19,11 +19,11 @@ export interface RunResult {
 /** Prepared statement wrapper with type safety */
 export interface PreparedStatement<T = unknown> {
   /** Get all matching rows */
-  all(...params: any[]): T[];
+  all(...params: any[]): T[] | Promise<T[]>;
   /** Get first matching row */
-  get(...params: any[]): T | null;
+  get(...params: any[]): T | null | Promise<T | null>;
   /** Execute INSERT/UPDATE/DELETE */
-  run(...params: any[]): RunResult;
+  run(...params: any[]): RunResult | Promise<RunResult>;
   /** Release resources */
   finalize(): void;
 }

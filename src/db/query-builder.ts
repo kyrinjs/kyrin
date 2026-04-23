@@ -4,7 +4,7 @@
  */
 
 import type { RunResult } from "./types";
-import type { SQLiteClient } from "./clients/sqlite";
+import type { DatabaseClient } from "./types/client";
 
 /**
  * Chainable query builder for minimal API
@@ -17,23 +17,23 @@ import type { SQLiteClient } from "./clients/sqlite";
  */
 export class QueryBuilder<T = unknown> {
   constructor(
-    readonly client: SQLiteClient,
+    readonly client: DatabaseClient,
     readonly sqlQuery: string,
     readonly params: any[]
   ) {}
 
   /** Get all matching rows */
-  all(): T[] {
+  all(): T[] | Promise<T[]> {
     return this.client.query<T>(this.sqlQuery, this.params);
   }
 
   /** Get first matching row */
-  first(): T | null {
+  first(): T | null | Promise<T | null> {
     return this.client.queryOne<T>(this.sqlQuery, this.params);
   }
 
   /** Execute and return result info (for INSERT/UPDATE/DELETE) */
-  run(): RunResult {
+  run(): RunResult | Promise<RunResult> {
     return this.client.run(this.sqlQuery, this.params);
   }
 }
