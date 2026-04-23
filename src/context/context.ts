@@ -48,12 +48,37 @@ export class Context {
 
   /** Get path parameter (e.g., :id) */
   param(key: string): string | null {
-    return this.params[key] ?? null;
+    return this.sanitize(this.params[key] ?? null);
   }
 
   /** Get query parameter (e.g., ?page=1) */
   query(key: string): string | null {
-    return this.url.searchParams.get(key);
+    return this.sanitize(this.url.searchParams.get(key));
+  }
+
+  /** Get all query parameters */
+  queryAll(): Record<string, string> {
+    const result: Record<string, string> = {};
+    for (const [key, value] of this.url.searchParams) {
+      result[key] = this.sanitize(value);
+    }
+    return result;
+  }
+
+  /** Check if query parameter exists */
+  hasQuery(key: string): boolean {
+    return this.url.searchParams.has(key);
+  }
+
+  /** Escape HTML special chars to prevent XSS */
+  private sanitize(value: string | null): string | null {
+    if (value === null) return null;
+    return value
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#x27;");
   }
 
   // ==================== Body Parsing ====================

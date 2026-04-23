@@ -51,11 +51,12 @@ export class Kyrin {
   }
 
   private defaultErrorHandler(error: Error, c: Context): Response {
-    console.error("Handler Error:", error);
+    console.error("Handler Error:", error.message);
     if (this.config.development) {
-      return new Response(`Error: ${error}\n\n${(error as any).stack}`, {
+      const message = error.message || "Unknown error";
+      return new Response(JSON.stringify({ error: message }), {
         status: 500,
-        headers: { "Content-Type": "text/plain" },
+        headers: { "Content-Type": "application/json" },
       });
     }
     return new Response("Internal Server Error", { status: 500 });
@@ -217,22 +218,31 @@ export class Kyrin {
     const prefix = options.prefix ?? "";
     const fs = require("fs");
     const path = require("path");
+    const rootResolved = path.resolve(rootPath);
 
     const staticHandler: Handler = async (c) => {
-      const urlPath = c.path.slice(prefix.length) || "/";
-      const filePath = path.join(rootPath, urlPath);
-      
-      // Security: prevent directory traversal
-      if (!filePath.startsWith(path.resolve(rootPath))) {
+      let urlPath = decodeURIComponent(c.path.slice(prefix.length) || "/");
+
+      // Block null bytes and null path traversal attempts
+      urlPath = urlPath.replace(/\0/g, "").replace(/\/+/g, "/");
+      if (urlPath.includes("..")) {
+        return c.notFound();
+      }
+
+      const filePath = path.join(rootResolved, urlPath);
+
+      // Security: prevent directory traversal (canonicalize and verify)
+      const canonicalPath = path.resolve(filePath);
+      if (!canonicalPath.startsWith(rootResolved + path.sep) && canonicalPath !== rootResolved) {
         return c.notFound();
       }
 
       try {
-        const stat = fs.statSync(filePath);
+        const stat = fs.statSync(canonicalPath);
         if (stat.isDirectory()) {
           return c.notFound();
         }
-        const file = Bun.file(filePath);
+        const file = Bun.file(canonicalPath);
         return new Response(file);
       } catch {
         return c.notFound();
