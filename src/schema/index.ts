@@ -3,6 +3,7 @@
  * Simple schema definition for auto database table creation
  */
 
+import { z } from "zod";
 import { StringType, NumberType, BooleanType, DateType } from "./types";
 import { Model, type SchemaColumns, type InferColumns } from "./model";
 
@@ -19,6 +20,24 @@ export const boolean = () => new BooleanType();
 
 /** Date column → TEXT (ISO string) */
 export const date = () => new DateType();
+
+// ==================== Schema Functions ====================
+
+/**
+ * Create a Zod schema for body validation
+ * @example
+ * ```typescript
+ * const data = await c.body(schema({
+ *   name: string(),
+ *   age: number()
+ * }));
+ * ```
+ */
+export function schema<T extends z.ZodRawShape>(shape: T) {
+  return z.object(shape);
+}
+
+export type Schema<T> = z.ZodSchema<T>;
 
 // ==================== Model Function ====================
 

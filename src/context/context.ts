@@ -3,6 +3,8 @@
  * Request/Response handling for route handlers
  */
 
+import { z } from "zod";
+
 export class Context {
   readonly req: Request;
   private _url?: URL;
@@ -86,12 +88,40 @@ query(key: string): string | null {
 
   /**
    * Parse request body as JSON
-   * @example
-   * const data = await c.body<{ name: string }>();
-   * const { name, email } = await c.body();
    */
-  async body<T = unknown>(): Promise<T> {
-    return (await this.req.json()) as T;
+  async body(): Promise<unknown>;
+
+  /**
+   * Parse and validate request body with schema
+   * @example
+   * ```typescript
+   * const { name, age } = await c.body(schema({
+   *   name: string(),
+   *   age: number()
+   * }));
+   * ```
+   */
+  async body<T>(schema: z.ZodSchema<T>): Promise<T>;
+
+  /**
+   * Implementation
+   */
+  async body<T>(schema?: z.ZodSchema<T>): Promise<T | unknown> {
+    if (schema) {
+      const json = await this.req.json();
+      const result = schema.safeParse(json);
+
+      if (!result.success) {
+        this.set.status = 400;
+        return this.json({
+          error: "Validation failed",
+          details: result.error.flatten().fieldErrors
+        }) as unknown as T;
+      }
+
+      return result.data;
+    }
+    return await this.req.json();
   }
 
   /** Get request body as raw text */

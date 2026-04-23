@@ -6,9 +6,12 @@ export type { Handler, HandlerResponse, HttpMethod, KyrinConfig } from "./core/t
 export { Router } from "./router/router";
 export { Context } from "./context/context";
 export type { MiddlewareHandler, HookHandler, KyrinPlugin } from "./middleware/types";
+export { model, string, number, boolean, date, schema } from "./schema";
 
 // ==================== Example Usage ====================
 import { Kyrin } from "./core/kyrin";
+import { schema } from "./schema";
+import { z } from "zod";
 
 const app = new Kyrin({ development: true });
 
@@ -43,7 +46,9 @@ app.get("/search", (c) => ({
 
 // POST with body
 app.post("/users", async (c) => {
-  const body = await c.body<{ name: string }>();
+  const body = await c.body(schema({
+    name: z.string()
+  })) as { name: string };
   return c.json({ created: body.name }, 201);
 });
 

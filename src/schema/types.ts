@@ -9,7 +9,7 @@ abstract class BaseType<T extends z.ZodTypeAny> {
   }
   default<V extends z.output<T>>(value: V) {
     return new DefaultType(
-      this._zod.default(value as z.util.NoUndefined<z.output<T>>)
+      this._zod.default(value as z.util.noUndefined<z.output<T>>)
     );
   }
   array() {
