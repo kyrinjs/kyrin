@@ -42,7 +42,7 @@ export type {
 } from "./db";
 
 // Schema
-export { model, string, number, boolean, date, Model, PrimaryKeyType, schema } from "./schema";
+export { model, string, number, boolean, date, Model, PrimaryKeyType, schema, column } from "./schema";
 export type { InferColumns, SchemaColumns, Schema } from "./schema";
 
 // Middleware

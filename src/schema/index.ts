@@ -7,19 +7,19 @@ import { z } from "zod";
 import { StringType, NumberType, BooleanType, DateType } from "./types";
 import { Model, type SchemaColumns, type InferColumns } from "./model";
 
-// ==================== Type Functions ====================
+// ==================== Type Functions (for Body Validation) ====================
 
-/** String column → TEXT */
-export const string = () => new StringType();
+/** String type for body validation */
+export const string = () => z.string();
 
-/** Number column → INTEGER */
-export const number = () => new NumberType();
+/** Number type for body validation */
+export const number = () => z.number();
 
-/** Boolean column → INTEGER (0/1) */
-export const boolean = () => new BooleanType();
+/** Boolean type for body validation */
+export const boolean = () => z.boolean();
 
-/** Date column → TEXT (ISO string) */
-export const date = () => new DateType();
+/** Date type for body validation */
+export const date = () => z.date();
 
 // ==================== Schema Functions ====================
 
@@ -39,6 +39,26 @@ export function schema<T extends z.ZodRawShape>(shape: T) {
 
 export type Schema<T> = z.ZodSchema<T>;
 
+// ==================== Column Functions (for Database) ====================
+
+/**
+ * Column definitions for database models
+ * @example
+ * ```typescript
+ * const User = model("users", {
+ *   id: column.number().pk(),
+ *   name: column.string(),
+ *   email: column.string().optional()
+ * });
+ * ```
+ */
+export const column = {
+  string: () => new StringType(),
+  number: () => new NumberType(),
+  boolean: () => new BooleanType(),
+  date: () => new DateType(),
+};
+
 // ==================== Model Function ====================
 
 /**
@@ -48,9 +68,9 @@ export type Schema<T> = z.ZodSchema<T>;
  * @example
  * ```typescript
  * const User = model("users", {
- *   id: number(),
- *   name: string(),
- *   email: string().optional(),
+ *   id: column.number().pk(),
+ *   name: column.string(),
+ *   email: column.string().optional(),
  * });
  * ```
  */
