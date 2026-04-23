@@ -60,7 +60,8 @@ query(key: string): string | null {
   queryAll(): Record<string, string> {
     const result: Record<string, string> = {};
     for (const [key, value] of this.url.searchParams) {
-      result[key] = this.sanitize(value) ?? "";
+      const sanitized: string = this.sanitize(value) || "";
+      result[key] = sanitized;
     }
     return result;
   }
