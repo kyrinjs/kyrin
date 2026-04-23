@@ -61,7 +61,11 @@ export class Context {
     const result: Record<string, string> = {};
     for (const [key, value] of this.url.searchParams) {
       const sanitized = this.sanitize(value);
-      result[key] = sanitized !== null ? sanitized : "";
+      if (sanitized !== null) {
+        result[key] = sanitized;
+      } else {
+        result[key] = "";
+      }
     }
     return result;
   }
