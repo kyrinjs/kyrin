@@ -194,9 +194,28 @@ export class Kyrin {
     for (const route of guardedApp.router.getRoutes()) {
       const wrappedHandler: Handler = async (c) => {
         let result: HandlerResponse;
-        await middleware(c, async () => {
+        let middlewareDidNotCallNext = true;
+
+        const next = async () => {
+          middlewareDidNotCallNext = false;
           result = await route.handler(c);
-        });
+        };
+
+        const middlewareResult = await middleware(c, next);
+
+        // ถ้า middleware return Response ให้ return เลย (short-circuit)
+        if (middlewareResult instanceof Response) {
+          return middlewareResult;
+        }
+
+        // ถ้า middleware ไม่ได้เรียก next() แสดงว่าถูกปฏิเสธ
+        if (middlewareDidNotCallNext) {
+          return new Response(JSON.stringify({ error: "Unauthorized" }), {
+            status: 401,
+            headers: { "Content-Type": "application/json" }
+          });
+        }
+
         return result!;
       };
       this.on(route.method, route.path, wrappedHandler);
@@ -252,10 +271,17 @@ export class Kyrin {
 
       const validatedHandler: Handler = async (c) => {
         const body = await c.body();
-        const validated = schema.parse(body);
-        // Create new context with validated body
+        const validated = schema.safeParse(body);
+
+        if (!validated.success) {
+          return c.json({
+            error: "Validation failed",
+            details: validated.error.flatten().fieldErrors
+          }, 400);
+        }
+
         const validatedCtx = Object.create(c);
-        validatedCtx.body = async () => validated;
+        validatedCtx.body = async () => validated.data;
         return actualHandler(validatedCtx);
       };
 

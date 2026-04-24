@@ -167,7 +167,7 @@ export class Database implements DatabaseClient {
    * ```typescript
    * await db.sync();                    // Safe mode: add new columns only
    * await db.sync({ force: true });     // Force mode: drop + create
-   * db.sync({ dryRun: true });        // Return SQL strings
+   * await db.sync({ dryRun: true });   // Return SQL strings (still async!)
    * ```
    */
   async sync(options: SyncOptions = {}): Promise<string[] | void> {
