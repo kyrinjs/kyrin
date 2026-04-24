@@ -23,7 +23,8 @@ function getDbTypeFromArg(arg?: string): string | null {
     mysql: "mysql",
     none: "none",
   };
-  return arg && arg in map ? map[arg] : null;
+  if (!arg || !(arg in map)) return null;
+  return map[arg] as string;
 }
 
 async function main() {
