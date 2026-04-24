@@ -32,7 +32,7 @@ async function main() {
   const projectName = args[0];
   const dbArg = args.find((a) => a.startsWith("--db="))?.replace("--db=", "") ?? args[1];
 
-  console.log(`\n${GREEN}KyRin Spawn v0.0.1-experimental.9${RESET}\n`);
+  console.log(`\n${GREEN}KyRin Spawn v0.0.1-experimental.10${RESET}\n`);
 
   let finalProjectName = projectName;
   let finalDbType: string | null = getDbTypeFromArg(dbArg);
