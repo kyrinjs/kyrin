@@ -1,12 +1,12 @@
 {
   "name": "kyrin",
-  "version": "0.0.1-experimental.11",
+  "version": "0.0.1-experimental.12",
   "description": "A simple, fast web framework for Bun",
   "type": "module",
   "main": "./dist/lib.js",
   "types": "./dist/lib.d.ts",
   "bin": {
-    "kyrin": "./dist/cli/spawn.js"
+    "kyrin": "./bin/kyrin"
   },
   "exports": {
     ".": {
@@ -15,7 +15,8 @@
     }
   },
   "files": [
-    "dist"
+    "dist",
+    "bin"
   ],
   "scripts": {
     "dev": "bun run --watch src/index.ts",
