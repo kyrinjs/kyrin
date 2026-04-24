@@ -29,10 +29,24 @@ function getDbTypeFromArg(arg?: string): string | null {
 
 async function main() {
   const args = process.argv.slice(2);
-  const projectName = args[0];
-  const dbArg = args.find((a) => a.startsWith("--db="))?.replace("--db=", "") ?? args[1];
+  
+  let projectName: string | undefined;
+  let dbArg: string | undefined;
+  
+  // Skip first arg if it's "spawn" (subcommand)
+  const startIdx = args[0] === "spawn" ? 1 : 0;
+  
+  for (let i = startIdx; i < args.length; i++) {
+    const arg = args[i];
+    if (!arg) continue;
+    if (arg.startsWith("--db=")) {
+      dbArg = arg.slice(5);
+    } else if (!arg.startsWith("-") && !projectName) {
+      projectName = arg;
+    }
+  }
 
-  console.log(`\n${GREEN}KyRin Spawn v0.0.1-experimental.12${RESET}\n`);
+  console.log(`\n${GREEN}KyRin Spawn v0.0.1-experimental.13${RESET}\n`);
 
   let finalProjectName = projectName;
   let finalDbType: string | null = getDbTypeFromArg(dbArg);
