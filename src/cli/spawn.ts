@@ -46,7 +46,7 @@ async function main() {
     }
   }
 
-  console.log(`\n${GREEN}KyRin Spawn v0.0.1-experimental.13${RESET}\n`);
+  console.log(`\n${GREEN}KyRin Spawn v0.0.1-experimental.14${RESET}\n`);
 
   let finalProjectName = projectName;
   let finalDbType: string | null = getDbTypeFromArg(dbArg);
