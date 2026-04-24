@@ -1,12 +1,12 @@
 {
   "name": "kyrin",
-  "version": "0.0.1-experimental.10",
+  "version": "0.0.1-experimental.11",
   "description": "A simple, fast web framework for Bun",
   "type": "module",
   "main": "./dist/lib.js",
   "types": "./dist/lib.d.ts",
   "bin": {
-    "kyrin": "./src/cli/spawn.ts"
+    "kyrin": "./dist/cli/spawn.js"
   },
   "exports": {
     ".": {
@@ -19,8 +19,9 @@
   ],
   "scripts": {
     "dev": "bun run --watch src/index.ts",
-    "build": "bun run build:js && bun run build:types",
-    "build:js": "bun build src/lib.ts --outdir dist --target bun --minify",
+    "build": "bun run build:lib && bun run build:cli && bun run build:types",
+    "build:lib": "bun build src/lib.ts --outdir dist --target bun --minify",
+    "build:cli": "bun build src/cli/spawn.ts --outdir dist/cli --target bun",
     "build:types": "tsc --emitDeclarationOnly --outDir dist",
     "test": "bun test",
     "test:watch": "bun test --watch",
