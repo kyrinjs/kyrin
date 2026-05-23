@@ -38,9 +38,8 @@ report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
 *.db-shm
 *.db-wal
 
-#ignore temp file
-examples
-guide version
-tests   
-benchmarks
-docs
+# project directories
+/examples/
+/tests/
+/benchmarks/
+/docs/
