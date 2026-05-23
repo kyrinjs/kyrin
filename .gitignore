@@ -33,6 +33,11 @@ report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
 # Finder (MacOS) folder config
 .DS_Store
 
+# database files
+*.db
+*.db-shm
+*.db-wal
+
 #ignore temp file
 examples
 guide version
