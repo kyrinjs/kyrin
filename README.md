@@ -14,4 +14,4 @@ bun add kyrin
 ```
 
 ## Website Documentation
-#### Kyrin Framework : https://kyrin.dev
+#### Kyrin Framework : https://legacy.kyrin.dev
